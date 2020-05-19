@@ -1,9 +1,5 @@
-#!/usr/bin/env python
-# coding: utf-8
 
-# ### Lexicon_extraction_Bhuvana Vellanki_660WS
-
-# In[1]:
+# Lexicon_extraction
 
 
 from sklearn.svm import LinearSVC
