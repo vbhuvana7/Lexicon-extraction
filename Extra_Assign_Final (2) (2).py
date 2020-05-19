@@ -1,0 +1,57 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# ### Lexicon_extraction_Bhuvana Vellanki_660WS
+
+# In[1]:
+
+
+from sklearn.svm import LinearSVC
+from sklearn.feature_extraction.text import CountVectorizer
+import os
+import re
+
+### Load Data
+
+def loadData_dir(direc,tag):
+    directory = os.path.dirname(direc)
+    reviews=[]
+    labels=[]
+    for root, dirnames, filenames in os.walk(direc):
+        for filename in filenames:
+            if filename.endswith(('.txt')):
+                fname=os.path.join(root,filename)
+                with open(fname, 'r') as file:
+                    data = file.read().replace('\n', '')
+                    review=re.sub("[^A-Za-z\s\']","",data)
+                    reviews.append(review)
+                    labels.append(tag)
+    return reviews,labels
+
+data_dir='txt_sentoken/'
+pos_data_dir=os.path.join(data_dir,"pos/")
+neg_data_dir=os.path.join(data_dir,"neg/")
+reviews_pos,labels_pos=loadData_dir(pos_data_dir,1)
+reviews_neg,labels_neg=loadData_dir(neg_data_dir,0)
+reviews=reviews_pos+reviews_neg
+labels=labels_pos+labels_neg
+
+cv = CountVectorizer(min_df=0.01,stop_words="english")
+cv_fit=cv.fit_transform(reviews)
+lsvc = LinearSVC(C=0.01, penalty="l2", dual=True).fit(cv_fit, labels)
+scores=[]
+for i,j in zip(cv.get_feature_names(),lsvc.coef_[0]):
+        scores.append([i,j])
+neg_final=[item[0] for item in sorted(scores,key=lambda x: x[1])[:10]]
+pos_final=[item[0] for item in sorted(scores,key=lambda x: x[1],reverse=True)[:10]]
+
+print("Positive Words:")
+for word in pos_final:
+    print(word)
+
+print("\n")
+    
+print("Negative Words:")
+for word in neg_final:
+    print(word)
+
